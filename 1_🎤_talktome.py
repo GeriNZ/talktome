@@ -1,4 +1,4 @@
-from config import OPENAI_API_KEY, ASSEMBLYAI_API_KEY
+# from config import OPENAI_API_KEY, ASSEMBLYAI_API_KEY
 import streamlit as st
 import openai
 import assemblyai as aai
