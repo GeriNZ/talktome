@@ -6,6 +6,21 @@ https://talktomelanguagelearning.streamlit.app/
 
 ![TalkToMe Screenshot](path_to_a_screenshot.png)  
 
+## About and Rationale for development
+### Contemporary language learning for a digital world
+In the contemporary educational landscape, where digital transformation is becoming the new norm, there exists a palpable gap between traditional instructional methodologies and the potential of cutting-edge technologies. One of the most promising bridges for this divide in the realm of language education is Machine Learning (ML). This app aims to explore the transformative capacity of ML to evolve traditional language learning materials into dynamic, responsive, and tailored educational experiences.
+
+While the shift to online platforms has been substantial, many instructional materials merely mirror their analog counterparts, failing to harness the digital medium's true potential. However, with ML, we can breathe life into these static resources, making them adaptive to students' individual needs and responsive to their progress. This not only provides a richer learning experience but also ensures that each learner's unique challenges and strengths are addressed.
+
+This app addresses students' need to practice conversation in their target language and provides a non-threatening experience. Students can choose if they want to receive suggestions for grammar improvements, or if they want to just immerse themseslves in their target language. This
+
+The app aims to emulate my own language teaching practice and aims to help students prepare for exams by allowing them to customise their practice. They can add an article or other text they want to practice talking about and practice specific vocabulary. The app keeps track of the student's practice goal and displays them as visualisations. The app also displays how many words the student's utterances have as well as the total word count. This addresses a common issue in spoken exams that students find it difficult to speak enough to showcase their language abilities.
+
+Traditional: Fixed dialogues or conversation starters.
+ML Transformation: Chatbots that can hold a conversation in the target language. Students interact with the chatbot, and the system adapts the conversation based on student responses, ensuring it remains at an appropriate level of difficulty.
+
+
+
 ## Features
 
 - **Real-time Language Practice**: No need for a language partner.
