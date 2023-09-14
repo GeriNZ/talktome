@@ -16,15 +16,25 @@ import numpy as np
 from PIL import Image
 import seaborn as sns
 import io
+import os
 
 
 st.set_page_config(page_title='TalkToMe', page_icon='🌍')
 
 
+import os
 
-# Initialize OpenAI and AssemblyAI APIs
-openai.api_key = OPENAI_API_KEY
-aai.settings.api_key = ASSEMBLYAI_API_KEY
+# Set the API keys 
+os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
+os.environ['ASSEMBLYAI_API_KEY'] = st.secrets['ASSEMBLYAI_API_KEY']
+
+# Now, initialize the APIs
+openai.api_key = os.environ['OPENAI_API_KEY']
+aai.settings.api_key = os.environ['ASSEMBLYAI_API_KEY']
+
+# # Initialize OpenAI and AssemblyAI APIs
+# openai.api_key = OPENAI_API_KEY
+# aai.settings.api_key = ASSEMBLYAI_API_KEY
 
 languages_map = {
     "German": "de",
@@ -325,13 +335,13 @@ if audio_bytes:
 
         if output_preference in ["Transcript", "Both"]:
             # Add user message to chat history
-            st.session_state.messages.append({"role": "user", "content": f"👤 You said: {st.session_state.student_text}"})
+            st.session_state.messages.append({"role": "user", "content": f" {st.session_state.student_text}"})
             # Display user message in chat message container
             with st.chat_message("user"):
                 st.markdown(f" {st.session_state.student_text}")
 
             # Add assistant response to chat history
-            st.session_state.messages.append({"role": "assistant", "content": f"🤖 TalkToMe response: {bot_response}"})
+            st.session_state.messages.append({"role": "assistant", "content": f" {bot_response}"})
             # Display assistant response in chat message container
             with st.chat_message("assistant"):
                 st.markdown(f" {bot_response}")
