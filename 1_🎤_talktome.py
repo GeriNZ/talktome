@@ -17,12 +17,13 @@ from PIL import Image
 import seaborn as sns
 import io
 import os
+import random
+import PyPDF2
+from io import BytesIO
 
 
 st.set_page_config(page_title='TalkToMe', page_icon='🌍')
 
-
-import os
 
 # Set the API keys 
 os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
@@ -87,38 +88,6 @@ def tokenize(text):
     words = re.findall(r'\w+', text.lower())  # Convert to lowercase and tokenize
     return words
 
-#  a simple mask to change the shape 
-def circular_mask(width, height, center=None, radius=None):
-    if center is None:
-        center = (int(width/2), int(height/2))
-    if radius is None:
-        radius = min(center[0], center[1], width-center[0], height-center[1])
-
-    Y, X = np.ogrid[:height, :width]
-    dist_from_center = np.sqrt((X - center[0])**2 + (Y-center[1])**2)
-    mask = dist_from_center <= radius
-    mask = 255 * mask.astype(int)
-    return mask
-
-mask = circular_mask(800, 400)
-
-# Define a color function
-def color_func(*args, **kwargs):
-    return sns.color_palette("pastel").as_hex()[np.random.randint(0, len(sns.color_palette("pastel")))]
-
-
-def circular_mask(width, height, center=None, radius=None):
-    if center is None:
-        center = (int(width/2), int(height/2))
-    if radius is None:
-        radius = min(center[0], center[1], width-center[0], height-center[1])
-
-    Y, X = np.ogrid[:height, :width]
-    dist_from_center = np.sqrt((X - center[0])**2 + (Y-center[1])**2)
-    mask = dist_from_center <= radius
-    return mask.astype(int)  # Return a binary mask
-
-mask = circular_mask(800, 400) * 255  # Convert binary mask to 255 (white) and 0 (black) format
 
 def display_wordcloud(word_counts, header="Word Cloud"):
     wordcloud = WordCloud(
@@ -146,6 +115,13 @@ def get_feedback(text, language, register, check_register, check_proficiency):
     
     response = chat_with_openai(prompt, language, register)
     return response
+
+def extract_text_from_pdf(uploaded_pdf):
+    pdf_reader = PyPDF2.PdfReader(uploaded_pdf)
+    text = ""
+    for page in pdf_reader.pages:  # Iterating directly over pages
+        text += page.extract_text()
+    return text
     
 # Welcome Message
 st.write("""
@@ -175,6 +151,36 @@ tips = """
 """
 st.sidebar.markdown(tips)
 
+def load_tips():
+    with open('tipstalk.txt', 'r') as f:
+        tipstalk = f.readlines()
+    return [tip.strip() for tip in tipstalk]
+
+tipstalk = load_tips()
+
+st.subheader("Language Learning Tips for Speaking")
+st.write("Learning a language is hard. Need some tips or motivation? Here are some tips for you that you can incorporate into your learning journey")
+
+# Display tip in a pretty box
+tip_to_display = st.session_state.get("current_tip", random.choice(tipstalk))
+st.markdown(f"""
+<div style="border:2px solid #F0F2F6; padding:20px; border-radius:5px; box-shadow: 2px 2px 12px #aaa;">
+    {tip_to_display}
+</div>
+""", unsafe_allow_html=True)
+
+st.write("###")
+# Button to generate a new tip
+if st.button("Get Another Tip"):
+    new_tip = random.choice(tipstalk)
+    while new_tip == tip_to_display:  # Ensure different tip is chosen
+        new_tip = random.choice(tipstalk)
+    st.session_state["current_tip"] = new_tip
+
+st.write("##")
+st.write("---")
+st.write("##")
+
 st.subheader("Choose your preferences for your practice today!")
 # Select language, proficiency, and register
 language = st.selectbox("Choose a language", ["German", "French", "Italian", "Spanish", "English"])
@@ -189,7 +195,25 @@ check_proficiency_option = st.checkbox('Check proficiency')
 
 # Text area for pasting content
 st.subheader("OPTIONAL: Text to talk about")
-content_text = st.text_area("Paste the text you want to talk about:")
+
+ # File uploader for PDF
+uploaded_file = st.file_uploader("Upload a PDF", type=["pdf"])
+
+content_text = ""
+
+if uploaded_file:
+    with st.spinner("Extracting text from PDF..."):
+        content_text = extract_text_from_pdf(uploaded_file)
+    st.success("Text extracted!")
+if not content_text:
+    # Allow user to type in text, adding a unique key
+    content_text = st.text_area("Paste the text you want to talk about:", key="unique_text_area")
+
+if content_text:
+    # Do whatever you need with content_text
+    st.write("You provided a text to talk about")
+   
+
 # Vocabulary Input
 st.subheader("OPTIONAL: Vocabulary Practice")
 vocab_input = st.text_area("Enter vocabulary words you want to practice (separate by commas or line breaks):")
