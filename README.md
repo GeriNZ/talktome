@@ -4,7 +4,7 @@ Welcome to TalkToMe, your personal language learning assistant! With this tool, 
 The app is deployed at:
 https://talktomelanguagelearning.streamlit.app/
 
-![TalkToMe Screenshot](path_to_a_screenshot.png)  
+![TalkToMe Screenshot](header.png)  
 
 ## About and Rationale for development
 ### Contemporary language learning for a digital world
