@@ -1,6 +1,19 @@
 import streamlit as st
+from pathlib import Path
+import base64
+from visualisations import *
+from processing import *
+
 st.set_page_config(page_title='TalkToMe', page_icon='🌍')
+
+header_html = "<img src='data:image/png;base64,{}' class='img-fluid'>".format(
+    img_to_bytes("header.png")
+)
+st.markdown(
+    header_html, unsafe_allow_html=True,
+)
 st.title('Contact')
+st.write("Have your say! Let me know what you think of the idea of this app and what features you would like to see in the future.")
 
 contact_form = """
 <form action="https://formsubmit.co/geraldine.bengsch@gmail.com" method="POST">

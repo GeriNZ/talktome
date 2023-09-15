@@ -22,20 +22,25 @@ import PyPDF2
 from io import BytesIO
 
 
+from pathlib import Path
+import base64
+from visualisations import *
+from processing import *
+
 st.set_page_config(page_title='TalkToMe', page_icon='🌍')
 
 
 # Set the API keys 
-os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
-os.environ['ASSEMBLYAI_API_KEY'] = st.secrets['ASSEMBLYAI_API_KEY']
+# os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
+# os.environ['ASSEMBLYAI_API_KEY'] = st.secrets['ASSEMBLYAI_API_KEY']
 
-# Now, initialize the APIs
-openai.api_key = os.environ['OPENAI_API_KEY']
-aai.settings.api_key = os.environ['ASSEMBLYAI_API_KEY']
+# # Now, initialize the APIs
+# openai.api_key = os.environ['OPENAI_API_KEY']
+# aai.settings.api_key = os.environ['ASSEMBLYAI_API_KEY']
 
 # # Initialize OpenAI and AssemblyAI APIs
-# openai.api_key = OPENAI_API_KEY
-# aai.settings.api_key = ASSEMBLYAI_API_KEY
+openai.api_key = OPENAI_API_KEY
+aai.settings.api_key = ASSEMBLYAI_API_KEY
 
 languages_map = {
     "German": "de",
@@ -44,101 +49,43 @@ languages_map = {
     "Spanish": "es",
     "English": "en"
 }
+word_counts = Counter()
+
 if 'word_counts' not in st.session_state:
     st.session_state['word_counts'] = []
 
+# Load the tips 
+tipstalk = load_tips()
 
-def voice_to_text(audio_bytes, language_code):
-    config = aai.TranscriptionConfig(language_code=language_code)
-    transcriber = aai.Transcriber(config=config)
-    file_name = 'temp_audio_file.wav'
-    with open(file_name, 'wb') as f:
-        f.write(audio_bytes)
-    transcript = transcriber.transcribe(file_name)
-    return transcript.text
+header_html = "<img src='data:image/png;base64,{}' class='responsive-img' alt='Talktome A language learning assistant header image'>".format(
+    img_to_bytes("header.png")
+)
+st.markdown(
+    header_html, unsafe_allow_html=True,
+)
 
+st.title("TalkToMe Spoken Language Learning")
 
-
-# Integrate into the chat function
-def chat_with_openai(prompt, language, register, content=None, vocab_list=None):
-    messages = [{"role": "system", "content": f"Language: {language}, Register: {register}"}]
-    
-    if content:
-        messages.append({"role": "user", "content": content})
-    if vocab_list:
-        vocab_str = ", ".join(vocab_list)
-        messages.append({"role": "user", "content": f"I want to practice the following vocabulary: {vocab_str}"})
-        
-    messages.append({"role": "user", "content": prompt})
-
-    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
-    return response.choices[0].message.content.strip()
-
-
-def text_to_voice(text, lang):
-    tts = gTTS(text=text, lang=lang)
-    audio_path = "bot_response.mp3"
-    tts.save(audio_path)
-    return audio_path
-
-st.title("TalkToMe Language Learning")
-
-def tokenize(text):
-    # Tokenize the text and return a list of words
-    words = re.findall(r'\w+', text.lower())  # Convert to lowercase and tokenize
-    return words
-
-
-def display_wordcloud(word_counts, header="Word Cloud"):
-    wordcloud = WordCloud(
-        background_color='white',
-        colormap='viridis',
-        color_func=color_func, 
-        mask=mask,
-        random_state=42
-    ).generate_from_frequencies(word_counts)
-
-    plt.figure(figsize=(10, 5))
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.axis('off')
-    plt.title(header, fontsize=20)
-    st.pyplot(plt)
-
-def get_feedback(text, language, register, check_register, check_proficiency):
-    prompt = f"Please correct the following {language} text for grammar: \"{text}\"."
-    
-    if check_register:
-        prompt += f" Also, evaluate if the text is written in a {register} register. The response should be Yes or No"
-    
-    if check_proficiency:
-        prompt += f" Lastly, assess the language proficiency level of the text using categories A1, A2, B1, B2, C1, C2 according to CEFR levels."
-    
-    response = chat_with_openai(prompt, language, register)
-    return response
-
-def extract_text_from_pdf(uploaded_pdf):
-    pdf_reader = PyPDF2.PdfReader(uploaded_pdf)
-    text = ""
-    for page in pdf_reader.pages:  # Iterating directly over pages
-        text += page.extract_text()
-    return text
     
 # Welcome Message
 st.write("""
-### Welcome to TalkToMe! 🌍✨
+### Welcome to TalkToMe! 🌍✨🤖
 This is your personal language learning assistant. Here, you can practice speaking, discussing articles, and get instant feedback in your chosen language! Currently, you can practice German, French, Italian, Spanish and English in real-time, without a partner.
 """)
 st.markdown("---") 
 
 # Sidebar content
+st.sidebar.header("**Get the most out of 🤖 TalkToMe**")
+
 st.sidebar.title("Instructions & Tips")
 st.sidebar.write("""
 #### How to use:
 1. **Select** your target language, proficiency level, and the kind of conversation you want (informal, formal, etc.).
-2. If you have an **article or text** you want to discuss, simply paste it in the provided text box.
+2. If you have an **article or text** you want to discuss, simply paste it in the provided text box. Or upload a pdf.
 3. If you have **specific vocabulary** that you want to practice, add the words to the list of vocabulary. The tracker will keep count of how often you used the words in the conversation.
 4. **Record** your voice by pressing the microphone button. You can ask questions about the text, practice sentences, or have a casual conversation.
 5. Wait a moment for the transcription and get an **instant response** from your virtual language assistant. You can choose to have the feedback in text, voice, or both!
+6. You can use the experimental feature to get feedback on your grammar, level of proficiency and/or register. Don't let that stress you out though! Remember, this app was created for you to practice without fear of making mistakes. TalkToMe will continue to use the register and level of proficiency you have selected, so that you can use the natural flow of the conversation as feedback as well.
 """)
 
 # Tips & Tricks in the sidebar
@@ -146,20 +93,15 @@ st.sidebar.write("#### Tips for the best experience:")
 tips = """
 - Ensure you're in a **quiet environment**.
 - Speak **clearly and at a moderate pace**.
-- Paste **news articles, stories, or study materials** for context.
+- Paste or upload **news articles, stories, or study materials** for context.
 - **Experiment and practice** regularly!
 """
 st.sidebar.markdown(tips)
 
-def load_tips():
-    with open('tipstalk.txt', 'r') as f:
-        tipstalk = f.readlines()
-    return [tip.strip() for tip in tipstalk]
 
-tipstalk = load_tips()
 
 st.subheader("Language Learning Tips for Speaking")
-st.write("Learning a language is hard. Need some tips or motivation? Here are some tips for you that you can incorporate into your learning journey")
+st.write("Learning a language is hard. Need some tips or motivation? Here are some tips for you that you can incorporate into your learning journey. And remember - TalkToMe is here to help you achieve your goals!")
 
 # Display tip in a pretty box
 tip_to_display = st.session_state.get("current_tip", random.choice(tipstalk))
@@ -189,7 +131,7 @@ register = st.selectbox("Choose a register", ["Informal", "Formal", "Business", 
 output_preference = st.radio("Select output preference", ["Audio", "Transcript", "Both"])
 # Add checkboxes
 st.write("If you want some feedback on your language use, you can select any or all of these options. Please note that this is currently an experimental feature and might not provide accurate information")
-correct_grammar_option = st.checkbox('Correct grammar (only works with option that includes a transcript)')
+correct_grammar_option = st.checkbox('Correct grammar')
 check_register_option = st.checkbox('Check register')
 check_proficiency_option = st.checkbox('Check proficiency')
 
@@ -210,7 +152,6 @@ if not content_text:
     content_text = st.text_area("Paste the text you want to talk about:", key="unique_text_area")
 
 if content_text:
-    # Do whatever you need with content_text
     st.write("You provided a text to talk about")
    
 
@@ -233,15 +174,7 @@ else:
     # Update vocab_counter to match vocab_list, setting counts to 0 for new words
     st.session_state['vocab_counter'] = {word: st.session_state.vocab_counter.get(word, 0) for word in vocab_list}
 
-## Update the counter with the student's input:
-def update_vocab_counter(text):
-    for word in vocab_list:  # Loop through the vocab words
-        if word in st.session_state.vocab_counter:
-            st.session_state.vocab_counter[word] += text.lower().count(word.lower())
 
-# Define a function to get a hash of the audio bytes:
-def get_audio_hash(audio_bytes):
-    return hashlib.md5(audio_bytes).hexdigest()
 
 # Initialize the last processed audio hash in session state:
 if 'audio_processed' not in st.session_state:
@@ -254,36 +187,6 @@ audio_bytes = audio_recorder(pause_threshold=2.0, sample_rate=41_000)
 st.write("---")
 st.write("#")
 
-# def generate_word_cloud(student_text):
-#     tokens = tokenize(student_text)
-#     word_counts = Counter(tokens)
-    
-#     # Generate the word cloud
-#     wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(word_counts)
-
-#     # Use matplotlib to create the figure
-#     fig, ax = plt.subplots(figsize=(10, 5))
-#     ax.imshow(wordcloud, interpolation='bilinear')
-#     ax.axis('off')
-    
-#     return fig
-
-def generate_cumulative_word_cloud():
-    # Generate the word cloud based on accumulated vocabulary
-    wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(word_counts)
-
-    # Use matplotlib to create the figure
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.imshow(wordcloud, interpolation='bilinear')
-    ax.axis('off')
-
-    # Convert the Matplotlib figure to an image buffer
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format="png")
-    buffer.seek(0)
-    plt.close(fig)
-    
-    return buffer
 
 
 if audio_bytes:
@@ -441,8 +344,8 @@ else:
     tab3.write("No vocabulary words used yet.")
 # For the Word Cloud
 tab4.subheader("Word Cloud Visualisation")
-if "student_text" in st.session_state:
-    image_buffer = generate_cumulative_word_cloud()
+image_buffer = generate_cumulative_word_cloud(word_counts)
+if image_buffer and image_buffer.getvalue():  # Ensure buffer has content
     tab4.image(image_buffer, caption="Word Cloud Visualization")
 
 else:
