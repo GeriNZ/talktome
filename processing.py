@@ -1,3 +1,11 @@
+import streamlit as st
+import openai
+import assemblyai as aai
+from audio_recorder_streamlit import audio_recorder
+from gtts import gTTS
+from collections import Counter
+import re
+import hashlib
 
 def voice_to_text(audio_bytes, language_code):
     config = aai.TranscriptionConfig(language_code=language_code)
@@ -93,7 +101,7 @@ def load_tips():
 
 
 ## Update the counter with the student's input:
-def update_vocab_counter(text):
+def update_vocab_counter(text, vocab_list):
     for word in vocab_list:  # Loop through the vocab words
         if word in st.session_state.vocab_counter:
             st.session_state.vocab_counter[word] += text.lower().count(word.lower())

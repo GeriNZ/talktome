@@ -1,6 +1,9 @@
 
 from pathlib import Path
 import base64
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+import io
 
 ##This module contains visualisation functions
 
