@@ -30,7 +30,7 @@ from processing import *
 st.set_page_config(page_title='TalkToMe', page_icon='🌍')
 
 
-# Set the API keys 
+# Set the API keys  
 # os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 # os.environ['ASSEMBLYAI_API_KEY'] = st.secrets['ASSEMBLYAI_API_KEY']
 
