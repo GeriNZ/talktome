@@ -32,12 +32,12 @@ st.set_page_config(page_title='TalkToMe', page_icon='🌍')
 
 
 # Set the API keys  
-# os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
-# os.environ['ASSEMBLYAI_API_KEY'] = st.secrets['ASSEMBLYAI_API_KEY']
+os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
+os.environ['ASSEMBLYAI_API_KEY'] = st.secrets['ASSEMBLYAI_API_KEY']
 
 # # Now, initialize the APIs
-# openai.api_key = os.environ['OPENAI_API_KEY']
-# aai.settings.api_key = os.environ['ASSEMBLYAI_API_KEY']
+openai.api_key = os.environ['OPENAI_API_KEY']
+aai.settings.api_key = os.environ['ASSEMBLYAI_API_KEY']
 
 # # Initialize OpenAI and AssemblyAI APIs
 openai.api_key = OPENAI_API_KEY
