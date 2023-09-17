@@ -16,7 +16,7 @@ st.title('Contact')
 st.write("Have your say! Let me know what you think of the idea of this app and what features you would like to see in the future.")
 
 contact_form = """
-<form action="https://formsubmit.co/geraldine.bengsch@gmail.com" method="POST">
+<form action="https://formsubmit.co/ad1b4a421f4310ed3e5b4d6903c79b2c" method="POST">
 <input type="hidden" name="_captcha" value="false">
      <input type="text" name="name" placeholder="Your name" required>
      <input type="email" name="email" placeholder="Your email address" required>
