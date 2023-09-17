@@ -77,7 +77,7 @@ st.title("Welcome to TalkToMe! 🌍✨🤖")
 
 # Welcome Message
 st.write("""
-This is your personal language learning assistant. Here, you can practice speaking, discussing articles, and get instant feedback in your chosen language! Currently, you can practice German, French, Italian, Spanish and English in real-time, without a partner.
+This is your personal language learning assistant. Here, you can practice speaking, discussing articles, and get instant feedback in your chosen language! Currently, you can practice German, French, Italian, Spanish, Portuguese, Dutch, Russian, Japanese, Chinese, Hindi and English in real-time, without a partner.
 """)
 st.markdown("---") 
 
