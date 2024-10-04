@@ -57,7 +57,7 @@ def chat_with_openai(prompt, language, proficiency, register, content=None, voca
 
     messages.append({"role": "user", "content": prompt})
 
-    response = openai.ChatCompletion.create(model="gpt-4o-mini", messages=messages)
+    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
     return response.choices[0].message.content.strip()
 
 
