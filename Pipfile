@@ -10,7 +10,6 @@ pypdf2 = "*"
 openai = "*"
 requests = "*"
 audio-recorder-streamlit = "*"
-
 gtts = "*"
 plotly = "*"
 wordcloud = "*"
