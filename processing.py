@@ -25,7 +25,7 @@ def chat_with_openai(prompt, language, proficiency, register, content=None, voca
 
     # Instruction based on proficiency
     proficiency_instruction = {
-        "A1": "Answer in simple sentences with basic vocabulary.",
+        "A1": "Answer in simple sentences with very basic vocabulary.",
         "A2": "Keep your responses simple, but slightly more detailed than A1.",
         "B1": "Use intermediate language, expanding on ideas but still relatively simple.",
         "B2": "You can use more complex language structures and vocabulary.",
@@ -57,7 +57,7 @@ def chat_with_openai(prompt, language, proficiency, register, content=None, voca
 
     messages.append({"role": "user", "content": prompt})
 
-    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
+    response = openai.ChatCompletion.create(model="gpt-4o-mini", messages=messages)
     return response.choices[0].message.content.strip()
 
 
