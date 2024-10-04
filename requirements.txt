@@ -1,0 +1,8 @@
+certifi==2024.8.30
+distlib==0.3.8
+filelock==3.16.1
+packaging==24.1
+pipenv==2024.1.0
+platformdirs==4.3.6
+setuptools==75.1.0
+virtualenv==20.26.6
